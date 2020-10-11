@@ -3,6 +3,7 @@ package registry
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/docker/cli/cli"
 	"github.com/docker/cli/cli/command"
@@ -43,7 +44,11 @@ func runLogout(dockerCli command.Cli, serverAddress string) error {
 		hostnameAddress = serverAddress
 	)
 	if !isDefaultRegistry {
-		hostnameAddress = registry.ConvertToHostname(serverAddress)
+		hostnameAddress = registry.ConvertToHostname(strings.ToLower(serverAddress))
+
+		// Appending not lowercased version for backward compatibility where user have
+		// saved the registry with uppercase.
+		regsToLogout = append(regsToLogout, registry.ConvertToHostname(serverAddress))
 		// the tries below are kept for backward compatibility where a user could have
 		// saved the registry in one of the following format.
 		regsToLogout = append(regsToLogout, hostnameAddress, "http://"+hostnameAddress, "https://"+hostnameAddress)
